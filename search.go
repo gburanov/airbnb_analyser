@@ -70,7 +70,6 @@ func search(lat float64, lng float64, guests int) (*flats, error) {
 			var err *smartError
 			inter, err = searchPage(lat, lng, guests, offset)
 			if err != nil {
-				fmt.Println(err.Error())
 				if err.getType() == "service_unavailable" {
 					time.Sleep(time.Second)
 					continue

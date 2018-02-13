@@ -23,7 +23,7 @@ func newSmartError(err error, errType string) *smartError {
 }
 
 func (s *smartError) getType() string {
-	return ""
+	return s.errType
 }
 
 func (s *smartError) Error() string {
