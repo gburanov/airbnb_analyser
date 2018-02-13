@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/Jeffail/gabs"
 	log "github.com/sirupsen/logrus"
@@ -18,23 +19,25 @@ func searchPage(lat float64, lng float64, guests int, offset int) (*flats, error
 
 	response, err := client.Get(url)
 	if err != nil {
-		return nil, smartError(err)
+		return nil, newSmartError(err, "")
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return nil, smartError(err)
+		return nil, newSmartError(err, "")
 	}
+
+	log.WithFields(log.Fields{"body": string(body)}).Info("Response")
 
 	jsonParsed, err := gabs.ParseJSON(body)
 	if err != nil {
-		return nil, smartError(err)
+		return nil, newSmartError(err, "")
 	}
 
 	// first of all, check for error
-	error := jsonParsed.Search("error_message").Data()
+	error := jsonParsed.Search("error").Data()
 	if error != nil {
-		return nil, smartError(errors.New(error.(string)))
+		return nil, newSmartError(errors.New(error.(string)), "")
 	}
 
 	ret := flats{}
@@ -57,9 +60,19 @@ func searchPage(lat float64, lng float64, guests int, offset int) (*flats, error
 func search(lat float64, lng float64, guests int) (*flats, error) {
 	ret := flats{}
 	for offset := 0; offset <= 130; offset += 10 {
-		inter, err := searchPage(lat, lng, guests, offset)
-		if err != nil {
-			return nil, err
+		var inter *flats
+		for {
+			var err error
+			inter, err = searchPage(lat, lng, guests, offset)
+			if err != nil {
+				fmt.Println(err.Error())
+				if err.Error() == "service_unavailable" {
+					time.Sleep(time.Second)
+					continue
+				}
+				return nil, err
+			}
+			break
 		}
 		for k, v := range *inter {
 			ret[k] = v

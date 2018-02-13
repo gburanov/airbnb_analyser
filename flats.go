@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/Jeffail/gabs"
 )
 
@@ -29,6 +31,14 @@ func selectFromMap(f *flats, chooser func(*flat) (bool, error)) (*flats, error) 
 		}
 	}
 	return &ret, nil
+}
+
+func (f *flat) toStr() string {
+	return fmt.Sprintf("URL: %v, price %v EUR", f.url(), f.price)
+}
+
+func (f *flat) url() string {
+	return fmt.Sprintf("https://www.airbnb.com/rooms/%d", f.id)
 }
 
 func getFlat(c *gabs.Container) (flat, error) {

@@ -10,7 +10,7 @@ import (
 
 func main() {
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.WarnLevel)
+	log.SetLevel(log.InfoLevel)
 
 	err := godotenv.Load()
 	if err != nil {
@@ -19,7 +19,6 @@ func main() {
 	lat := 52.573120
 	lng := 13.355920
 	guests := 1
-
 	rooms, err := search(lat, lng, guests)
 	if err != nil {
 		log.Fatal(err)
@@ -32,6 +31,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Printf("Rooms %v", rooms)
+	reportStatistics(rooms)
+	return
 }
