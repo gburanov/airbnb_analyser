@@ -10,7 +10,8 @@ import (
 
 func main() {
 	log.SetOutput(os.Stdout)
-	log.SetLevel(log.InfoLevel)
+	log.SetLevel(log.WarnLevel)
+	//log.SetLevel(log.InfoLevel)
 
 	err := godotenv.Load()
 	if err != nil {
@@ -31,6 +32,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	reportStatistics(rooms)
+	err = reportStatistics(rooms)
+	if err != nil {
+		log.Fatal(err)
+	}
 	return
 }
