@@ -4,6 +4,6 @@ import "fmt"
 
 func reportStatistics(f *flats) {
 	for _, flat := range *f {
-		fmt.Print(flat.toStr())
+		fmt.Println(flat.toStr())
 	}
 }
