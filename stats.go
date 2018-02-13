@@ -6,19 +6,18 @@ func reportStatistics(f *flats) error {
 	prices := []float64{}
 
 	for _, flat := range *f {
-		str, err := flat.toStr()
-		if err != nil {
-			return err
-		}
-
-		fmt.Println(str)
-
 		isActive, err := flat.isActive()
 		if err != nil {
 			return err
 		}
 
 		if isActive {
+			str, err := flat.toStr()
+			if err != nil {
+				return err
+			}
+			fmt.Println(str)
+
 			prices = append(prices, flat.price)
 		}
 	}
