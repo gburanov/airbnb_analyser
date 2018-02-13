@@ -2,12 +2,16 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"os"
 
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	log.SetOutput(os.Stdout)
+	log.SetLevel(log.WarnLevel)
+
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("Empty dotenv")
