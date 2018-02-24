@@ -17,6 +17,11 @@ func main() {
 	if err != nil {
 		fmt.Println("Empty dotenv")
 	}
+	err = writeToSheet("1")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	lat := 52.573120
 	lng := 13.355920
 	guests := 1

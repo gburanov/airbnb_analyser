@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -9,15 +10,23 @@ import (
 	sheets "google.golang.org/api/sheets/v4"
 )
 
-func writeToSheet(flatDesc string) error {
+func getHTTPClient() (*http.Client, error) {
 	apiKey := os.Getenv("GOOGLE_API_KEY")
 	if apiKey == "" {
-		return errors.New("No Google APi key")
+		return nil, errors.New("No Google APi key")
 	}
 
 	client := http.Client{Transport: &transport.APIKey{Key: apiKey}}
+	return &client, nil
+}
 
-	srv, err := sheets.New(&client)
+func writeToSheet(flatDesc string) error {
+	client, err := getHTTPClient()
+	if err != nil {
+		return err
+	}
+
+	srv, err := sheets.New(client)
 	if err != nil {
 		return err
 	}
@@ -27,8 +36,15 @@ func writeToSheet(flatDesc string) error {
 		return errors.New("No Spreadsheet key")
 	}
 
-	sheet := srv.Spreadsheets.Get(sheetID).Do()
-	sheet.Fields()
+	sheet, err := srv.Spreadsheets.Get(sheetID).Do()
+	if err != nil {
+		return err
+	}
 
+	newSheet, err := srv.Spreadsheets.Create(sheet).Do()
+	if err != nil {
+		return err
+	}
+	fmt.Println("New sheet %v", newSheet)
 	return nil
 }
