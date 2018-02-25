@@ -3,21 +3,26 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 
-	"google.golang.org/api/googleapi/transport"
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 	sheets "google.golang.org/api/sheets/v4"
 )
 
 func getHTTPClient() (*http.Client, error) {
-	apiKey := os.Getenv("GOOGLE_API_KEY")
-	if apiKey == "" {
-		return nil, errors.New("No Google APi key")
+	data, err := ioutil.ReadFile("token.json")
+	if err != nil {
+		return nil, err
 	}
-
-	client := http.Client{Transport: &transport.APIKey{Key: apiKey}}
-	return &client, nil
+	conf, err := google.JWTConfigFromJSON(data, "https://www.googleapis.com/auth/spreadsheets")
+	if err != nil {
+		return nil, err
+	}
+	client := conf.Client(oauth2.NoContext)
+	return client, nil
 }
 
 func writeToSheet(flatDesc string) error {
@@ -36,15 +41,16 @@ func writeToSheet(flatDesc string) error {
 		return errors.New("No Spreadsheet key")
 	}
 
-	sheet, err := srv.Spreadsheets.Get(sheetID).Do()
+	s := []interface{}{"Hi there"}
+	values := sheets.ValueRange{Values: [][]interface{}{s}}
+
+	_, err = srv.Spreadsheets.Values.Append(sheetID, "A2:E", &values).
+		ValueInputOption("USER_ENTERED").
+		Do()
 	if err != nil {
 		return err
 	}
 
-	newSheet, err := srv.Spreadsheets.Create(sheet).Do()
-	if err != nil {
-		return err
-	}
-	fmt.Println("New sheet %v", newSheet)
+	fmt.Println("DONE")
 	return nil
 }
