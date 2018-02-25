@@ -17,7 +17,7 @@ func main() {
 	if err != nil {
 		fmt.Println("Empty dotenv")
 	}
-	err = writeToSheet("1")
+	sheetInst, err := newSheetClient()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = reportStatistics(rooms)
+	err = reportStatistics(sheetInst, rooms)
 	if err != nil {
 		log.Fatal(err)
 	}

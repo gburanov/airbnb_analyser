@@ -25,32 +25,52 @@ func getHTTPClient() (*http.Client, error) {
 	return client, nil
 }
 
-func writeToSheet(flatDesc string) error {
+type sheetClient struct {
+	position int
+	client   *sheets.Service
+	sheetID  string
+}
+
+func newSheetClient() (*sheetClient, error) {
 	client, err := getHTTPClient()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	srv, err := sheets.New(client)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	sheetID := os.Getenv("SPREADSHEET_ID")
 	if sheetID == "" {
-		return errors.New("No Spreadsheet key")
+		return nil, errors.New("No Spreadsheet key")
 	}
 
-	s := []interface{}{"Hi there"}
+	sheetClientInst := sheetClient{
+		position: 2,
+		client:   srv,
+		sheetID:  sheetID,
+	}
+
+	return &sheetClientInst, nil
+}
+
+func (c *sheetClient) pos() string {
+	return fmt.Sprintf("A%d", c.position)
+}
+
+func (c *sheetClient) write(str string) error {
+	s := []interface{}{str}
 	values := sheets.ValueRange{Values: [][]interface{}{s}}
 
-	_, err = srv.Spreadsheets.Values.Append(sheetID, "A2:E", &values).
+	_, err := c.client.Spreadsheets.Values.Append(c.sheetID, c.pos(), &values).
 		ValueInputOption("USER_ENTERED").
 		Do()
 	if err != nil {
 		return err
 	}
+	c.position = c.position + 1
 
-	fmt.Println("DONE")
 	return nil
 }
