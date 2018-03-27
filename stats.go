@@ -5,10 +5,9 @@ import (
 	"time"
 )
 
-func reportStatistics(s *sheetClient, f *flats) error {
+func reportStatistics(w writer, f *flats) error {
 	date := time.Now()
-	fmt.Println(date.String())
-	s.write(date.String())
+	w.Write(date.String())
 
 	prices := []float64{}
 	for _, flat := range *f {
@@ -22,8 +21,7 @@ func reportStatistics(s *sheetClient, f *flats) error {
 			if err != nil {
 				return err
 			}
-			fmt.Println(str)
-			s.write(str)
+			w.Write(str)
 
 			prices = append(prices, flat.price)
 		}
@@ -45,11 +43,8 @@ func reportStatistics(s *sheetClient, f *flats) error {
 	maxPrice := fmt.Sprintf("Maximum price %v", min)
 	minPrice := fmt.Sprintf("Minimum price %v", max)
 	avPrice := fmt.Sprintf("Average price %v", total/float64(len(prices)))
-	fmt.Println(avPrice)
-	s.write(avPrice)
-	fmt.Println(maxPrice)
-	s.write(maxPrice)
-	fmt.Println(minPrice)
-	s.write(minPrice)
+	w.Write(avPrice)
+	w.Write(maxPrice)
+	w.Write(minPrice)
 	return nil
 }

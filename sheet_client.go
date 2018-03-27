@@ -60,7 +60,7 @@ func (c *sheetClient) pos() string {
 	return fmt.Sprintf("A%d", c.position)
 }
 
-func (c *sheetClient) write(str string) error {
+func (c *sheetClient) Write(str string) error {
 	s := []interface{}{str}
 	values := sheets.ValueRange{Values: [][]interface{}{s}}
 

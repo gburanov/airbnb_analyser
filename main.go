@@ -19,7 +19,7 @@ func main() {
 	}
 	sheetInst, err := newSheetClient()
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("No output to google. %v\n", err)
 	}
 
 	lat := 52.573120
@@ -37,9 +37,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = reportStatistics(sheetInst, rooms)
+	if sheetInst != nil {
+		err = reportStatistics(sheetInst, rooms)
+	} else {
+		w := outputWriter{}
+		err = reportStatistics(&w, rooms)
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return
 }
